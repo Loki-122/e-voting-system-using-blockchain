@@ -7,7 +7,7 @@ import {
   TextField,
   MenuItem,
 } from "@mui/material";
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import InputField from "../Components/Form/InputField";
 import { ErrorMessage } from "../Components/Form/ErrorMessage";
@@ -50,8 +50,14 @@ const Login = () => {
   const [selectedCandidateUsername, setSelectedCandidateUsername] =
     useState("");
   const fromState = location.state?.info;
-  const fromQuery = getContextFromQuery(location.search);
-  const effectiveContext = fromState || fromQuery || voteContext;
+  const fromQuery = useMemo(
+    () => getContextFromQuery(location.search),
+    [location.search]
+  );
+  const effectiveContext = useMemo(
+    () => fromState || fromQuery || voteContext,
+    [fromState, fromQuery, voteContext]
+  );
   const selectedElection = elections.find((e) => e._id === selectedElectionId);
   const { connectWallet, sendTransaction, getAllTransactions } =
     useContext(TransactionContext);
@@ -102,8 +108,6 @@ const Login = () => {
       return;
     }
 
-    connectWallet();
-
     async function getData() {
       console.log(effectiveContext);
       let link = `${serverLink}election/${effectiveContext.election_id}`;
@@ -116,7 +120,7 @@ const Login = () => {
       }
     }
     getData();
-  }, [connectWallet, effectiveContext]);
+  }, [effectiveContext]);
 
   const checkDuplicateVote = async (user_id, election_id) => {
     try {

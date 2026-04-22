@@ -1,10 +1,17 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ethers } from 'ethers';
 import { contractABI, contractAddress } from "../utils/Constant";
 
 export const TransactionContext = React.createContext();
 
-const { ethereum } = window;
+const getEthereum = () => window.ethereum;
+
+const getErrorMessage = (error) =>
+  error?.data?.message ||
+  error?.error?.message ||
+  error?.reason ||
+  error?.message ||
+  "Internal Send Transaction Error";
 
 export const TransactionProvider = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState("");
@@ -12,50 +19,77 @@ export const TransactionProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
 
   const createEthereumContract = () => {
+    const ethereum = getEthereum();
     const provider = new ethers.providers.Web3Provider(ethereum);
     const signer = provider.getSigner();
     const transactionContract = new ethers.Contract(contractAddress, contractABI, signer);
 
-    return transactionContract;
+    return { provider, signer, transactionContract };
   };
 
-  const connectWallet = async () => {
+  const connectWallet = useCallback(async () => {
     try {
+      const ethereum = getEthereum();
       if (!ethereum) return alert("Please install MetaMask.");
 
       const accounts = await ethereum.request({
         method: "eth_requestAccounts",
       });
 
-      setCurrentAccount(accounts[0]);
-      return accounts[0];
+      const account = accounts?.[0] || "";
+      setCurrentAccount(account);
+      return account;
     } catch (error) {
       console.log(error);
       throw new Error("No ethereum object");
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const ethereum = getEthereum();
+    if (!ethereum?.on) return undefined;
+
+    const handleAccountsChanged = (accounts) => {
+      setCurrentAccount(accounts?.[0] || "");
+    };
+
+    ethereum.on("accountsChanged", handleAccountsChanged);
+
+    return () => {
+      ethereum.removeListener("accountsChanged", handleAccountsChanged);
+    };
+  }, []);
 
   const sendTransaction = async (election_id, candidate_id, user_id) => {
     try {
+      const ethereum = getEthereum();
       if (ethereum) {
-        const account = currentAccount || (await connectWallet());
+        const account = await connectWallet();
         if (!account) {
           return { valid: false, mess: "Wallet not connected" };
         }
-        const transactionsContract = createEthereumContract();
+        const { provider, transactionContract } = createEthereumContract();
 
-        const transactionHash = await transactionsContract.addToBlockchain(
+        const contractCode = await provider.getCode(contractAddress);
+        if (contractCode === "0x") {
+          return {
+            valid: false,
+            mess: "Transaction contract is not deployed at the configured address. Run truffle migrate and update REACT_APP_CONTRACT_ADDRESS.",
+          };
+        }
+
+        const transactionHash = await transactionContract.addToBlockchain(
           account,
-          user_id,
-          election_id,
-          candidate_id
+          String(user_id),
+          String(election_id),
+          String(candidate_id)
         );
 
         console.log(`Loading - ${transactionHash.hash}`);
         await transactionHash.wait();
         console.log(`Success - ${transactionHash.hash}`);
 
-        const transactionsCount = await transactionsContract.getTransactionCount();
+        const transactionsCount = await transactionContract.getTransactionCount();
         setTransactionCount(transactionsCount.toNumber());
 
         return {
@@ -68,18 +102,20 @@ export const TransactionProvider = ({ children }) => {
         return { valid: false, mess: "No ethereum object" };
       }
     } catch (error) {
+      console.error("Error sending blockchain transaction:", error);
       if (error.code === "ACTION_REJECTED") {
         return { valid: false, mess: "User Rejected Transaction" };
       } else {
-        return { valid: false, mess: "Internal Send Transaction Error" };
+        return { valid: false, mess: getErrorMessage(error) };
       }
     }
   };
 
   const getAllTransactions = async () => {
     try {
+      const ethereum = getEthereum();
       if (ethereum) {
-        const transactionsContract = createEthereumContract();
+        const { transactionContract: transactionsContract } = createEthereumContract();
 
         const availableTransactions = await transactionsContract.getAllTransactions();
 
