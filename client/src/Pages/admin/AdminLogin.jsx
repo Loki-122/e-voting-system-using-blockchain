@@ -421,10 +421,45 @@ export default function AdminLogin() {
             style={{
               fontSize: "0.8rem",
               color: "rgba(255, 255, 255, 0.4)",
+              marginBottom: "16px",
             }}
           >
             Protected by blockchain security
           </p>
+          
+          {/* Go Back to Home Button */}
+          <button
+            onClick={() => navigate("/")}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "12px 20px",
+              background: "transparent",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              borderRadius: "12px",
+              color: "rgba(255, 255, 255, 0.7)",
+              fontSize: "0.85rem",
+              fontWeight: 500,
+              cursor: "pointer",
+              transition: "all 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "rgba(139, 92, 246, 0.5)";
+              e.currentTarget.style.color = "#ffffff";
+              e.currentTarget.style.background = "rgba(139, 92, 246, 0.1)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.15)";
+              e.currentTarget.style.color = "rgba(255, 255, 255, 0.7)";
+              e.currentTarget.style.background = "transparent";
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Go back to Home
+          </button>
         </div>
       </div>
 
