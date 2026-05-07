@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ContentHeader from "../../../Components/ContentHeader";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -12,11 +12,30 @@ const AddElection = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     setIsVisible(true);
     fetchCandidates();
   }, []);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+        setSearchTerm("");
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   const fetchCandidates = async () => {
     try {
@@ -248,7 +267,7 @@ const AddElection = () => {
                     </a>
                   </div>
                 ) : (
-                  <div style={{ position: "relative" }}>
+                  <div ref={dropdownRef} style={{ position: "relative" }}>
                     {/* Dropdown Trigger */}
                     <div
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -297,6 +316,7 @@ const AddElection = () => {
                           zIndex: 100,
                           boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)",
                         }}
+                        onMouseDown={(e) => e.preventDefault()}
                       >
                         {/* Search Input */}
                         <div style={{ padding: "12px", borderBottom: "1px solid rgba(255, 255, 255, 0.06)" }}>
@@ -305,7 +325,6 @@ const AddElection = () => {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Search candidates..."
-                            autoFocus
                             style={{
                               width: "100%",
                               padding: "10px 12px",
@@ -317,6 +336,7 @@ const AddElection = () => {
                               outline: "none",
                               boxSizing: "border-box",
                             }}
+                            onClick={(e) => e.stopPropagation()}
                           />
                         </div>
 
@@ -326,7 +346,18 @@ const AddElection = () => {
                             filteredCandidates.map((candidate) => (
                               <div
                                 key={candidate._id}
-                                onClick={() => handleSelectCandidate(candidate)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSelectCandidate(candidate);
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    handleSelectCandidate(candidate);
+                                  }
+                                }}
                                 style={{
                                   padding: "12px 16px",
                                   display: "flex",
