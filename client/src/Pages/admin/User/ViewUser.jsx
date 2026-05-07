@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from "react";
 import BasicTable from "../../../Components/BasicTable";
 import ContentHeader from "../../../Components/ContentHeader";
-import Card from "@mui/material/Card";
 import "../../../style.css";
 import axios from "axios";
-import Button from "@mui/material/Button";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { serverLink } from "../../../Data/Variables";
 import { Alert, Snackbar } from "@mui/material";
 import { Link } from "react-router-dom";
@@ -14,6 +10,7 @@ import { Link } from "react-router-dom";
 const ViewUser = () => {
   const [data, setData] = useState([]);
   const [open, setOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   const columns = [
     { field: "_id", headerName: "ID", width: 220, hide: true },
@@ -45,9 +42,30 @@ const ViewUser = () => {
         const link = "edit/" + params.row._id;
         return (
           <Link to={link}>
-            <Button>
-              <EditIcon />
-            </Button>
+            <button
+              style={{
+                background: "rgba(139, 92, 246, 0.1)",
+                border: "1px solid rgba(139, 92, 246, 0.3)",
+                borderRadius: "8px",
+                padding: "8px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(139, 92, 246, 0.2)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(139, 92, 246, 0.1)";
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
           </Link>
         );
       },
@@ -63,9 +81,30 @@ const ViewUser = () => {
           setOpen(true);
         };
         return (
-          <Button onClick={deleteBtn}>
-            <DeleteIcon sx={{ color: "error.main" }} />
-          </Button>
+          <button
+            onClick={deleteBtn}
+            style={{
+              background: "rgba(239, 68, 68, 0.1)",
+              border: "1px solid rgba(239, 68, 68, 0.3)",
+              borderRadius: "8px",
+              padding: "8px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(239, 68, 68, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)";
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
         );
       },
     },
@@ -79,24 +118,63 @@ const ViewUser = () => {
   };
 
   useEffect(() => {
+    setIsVisible(true);
     async function getData() {
-      let res = await axios.get(serverLink + "users");
-      let users = res.data;
-      setData(users);
+      try {
+        let res = await axios.get(serverLink + "users");
+        let users = res.data;
+        setData(users);
+      } catch (error) {
+        console.log("API not available");
+      }
     }
     getData();
   }, [open]);
 
   return (
-    <div className="admin__content">
+    <div
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? "translateY(0)" : "translateY(20px)",
+        transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+      }}
+    >
       <ContentHeader title="Add User" link="/admin/user/add" />
-      <div className="content" style={{ paddingBottom: "20px" }}>
-        <Card variant="outlined">
-          <BasicTable columns={columns} rows={data} checkboxSelection={true} />
-        </Card>
+      <div style={{ padding: "32px" }}>
+        <div style={{ marginBottom: "24px" }}>
+          <h2
+            style={{
+              fontSize: "1.5rem",
+              fontWeight: 600,
+              color: "#ffffff",
+              marginBottom: "8px",
+            }}
+          >
+            User Management
+          </h2>
+          <p
+            style={{
+              fontSize: "0.9rem",
+              color: "rgba(255, 255, 255, 0.5)",
+            }}
+          >
+            Manage all registered users in the system
+          </p>
+        </div>
+        <BasicTable columns={columns} rows={data} checkboxSelection={true} />
       </div>
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="error" sx={{ width: "100%" }}>
+        <Alert 
+          onClose={handleClose} 
+          severity="error" 
+          sx={{ 
+            width: "100%",
+            background: "rgba(239, 68, 68, 0.1)",
+            border: "1px solid rgba(239, 68, 68, 0.3)",
+            color: "#ef4444",
+            backdropFilter: "blur(10px)",
+          }}
+        >
           User Deleted
         </Alert>
       </Snackbar>
