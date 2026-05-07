@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ContentHeader from "../../../Components/ContentHeader";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -12,10 +12,24 @@ const AddElection = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     setIsVisible(true);
     fetchCandidates();
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+        setSearchTerm("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const fetchCandidates = async () => {
@@ -55,12 +69,13 @@ const AddElection = () => {
     }
   };
 
-  const handleSelectCandidate = (candidate) => {
+  const handleSelectCandidate = (candidate, event) => {
+    event.stopPropagation();
     if (!selectedCandidates.find(c => c._id === candidate._id)) {
-      setSelectedCandidates([...selectedCandidates, candidate]);
+      setSelectedCandidates(prev => [...prev, candidate]);
     }
-    setIsDropdownOpen(false);
     setSearchTerm("");
+    // Keep dropdown open to allow selecting more candidates
   };
 
   const handleRemoveCandidate = (candidateId) => {
@@ -248,7 +263,7 @@ const AddElection = () => {
                     </a>
                   </div>
                 ) : (
-                  <div style={{ position: "relative" }}>
+                  <div style={{ position: "relative" }} ref={dropdownRef}>
                     {/* Dropdown Trigger */}
                     <div
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
