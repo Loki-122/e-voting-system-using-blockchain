@@ -21,7 +21,10 @@ const AddElection = () => {
   const fetchCandidates = async () => {
     try {
       const res = await axios.get("http://localhost:1322/api/auth/candidates");
-      if (res.data && res.data.candidates) {
+      // API returns array directly, not wrapped in candidates property
+      if (res.data && Array.isArray(res.data)) {
+        setAvailableCandidates(res.data);
+      } else if (res.data && res.data.candidates) {
         setAvailableCandidates(res.data.candidates);
       }
     } catch (error) {
