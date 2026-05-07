@@ -11,6 +11,7 @@ import { serverLink } from "../../../Data/Variables";
 const AddUser = () => {
   const navigate = useNavigate();
   const [locationData, setLocation] = useState({});
+  const [isVisible, setIsVisible] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -33,10 +34,7 @@ const AddUser = () => {
     sendData.append("profile", profile);
     sendData.append("avatar", username + "." + profile.name.split(".").pop());
 
-    console.log(sendData);
-
     axios.post(serverLink + "register", sendData).then((res) => {
-      console.log(res.status);
       if (res.status === 201) {
         navigate("/admin/user");
       }
@@ -44,6 +42,7 @@ const AddUser = () => {
   };
 
   useEffect(() => {
+    setIsVisible(true);
     async function getData() {
       await axios
         .get("https://geolocation-db.com/json/")
@@ -57,80 +56,268 @@ const AddUser = () => {
     getData();
   }, []);
 
+  const inputStyle = {
+    width: "100%",
+    padding: "14px 16px",
+    background: "rgba(255, 255, 255, 0.03)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    borderRadius: "12px",
+    color: "#ffffff",
+    fontSize: "0.95rem",
+    outline: "none",
+    transition: "all 0.3s ease",
+    boxSizing: "border-box",
+  };
+
+  const labelStyle = {
+    display: "block",
+    fontSize: "0.8rem",
+    fontWeight: 600,
+    color: "rgba(255, 255, 255, 0.7)",
+    marginBottom: "8px",
+    letterSpacing: "0.05em",
+    textTransform: "uppercase",
+  };
+
   return (
-    <div className="admin__content">
+    <div
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? "translateY(0)" : "translateY(20px)",
+        transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+      }}
+    >
       <ContentHeader />
-      <div className="content">
+      <div style={{ padding: "32px" }}>
         <form onSubmit={handleSubmit} method="POST">
-          <Paper elevation={3}>
-            <Box px={3} py={2}>
-              <Typography variant="h6" align="center" margin="dense">
-                Add User
-              </Typography>
-              <Grid container pt={3} spacing={3}>
-                <Grid item xs={12} sm={12}>
-                  <InputField
-                    label="username"
-                    name="username"
-                    fullWidth={true}
-                  />
-                  <ErrorMessage />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <InputField
-                    label="First Name"
-                    name="fname"
-                    fullWidth={true}
-                  />
-                  <ErrorMessage />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <InputField label="Last Name" name="lname" fullWidth={true} />
-                  <ErrorMessage />
-                </Grid>
-                <Grid item xs={12} sm={12}>
-                  <InputField label="E-mail" name="email" fullWidth={true} />
-                </Grid>
-                <Grid item xs={12} sm={12}>
-                  <InputField label="Mobile" name="mobile" fullWidth={true} />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <InputField
-                    type="password"
-                    label="Password"
-                    name="password"
-                    fullWidth={true}
-                  />
-                  <ErrorMessage />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <InputField
-                    type="password"
-                    label="Confirm Password"
-                    name="confirmpassword"
-                    fullWidth={true}
-                  />
-                  <ErrorMessage />
-                </Grid>
-                <Grid item xs={12} sm={12}>
+          <div
+            style={{
+              background: "rgba(255, 255, 255, 0.02)",
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255, 255, 255, 0.06)",
+              borderRadius: "20px",
+              padding: "32px",
+            }}
+          >
+            <h2
+              style={{
+                fontSize: "1.5rem",
+                fontWeight: 600,
+                color: "#ffffff",
+                marginBottom: "8px",
+                textAlign: "center",
+              }}
+            >
+              Add New User
+            </h2>
+            <p
+              style={{
+                fontSize: "0.9rem",
+                color: "rgba(255, 255, 255, 0.5)",
+                textAlign: "center",
+                marginBottom: "32px",
+              }}
+            >
+              Create a new user account for the voting system
+            </p>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                gap: "24px",
+              }}
+            >
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={labelStyle}>Username</label>
+                <input
+                  name="username"
+                  placeholder="Enter username"
+                  style={inputStyle}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "rgba(139, 92, 246, 0.5)";
+                    e.target.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>First Name</label>
+                <input
+                  name="fname"
+                  placeholder="Enter first name"
+                  style={inputStyle}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "rgba(139, 92, 246, 0.5)";
+                    e.target.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Last Name</label>
+                <input
+                  name="lname"
+                  placeholder="Enter last name"
+                  style={inputStyle}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "rgba(139, 92, 246, 0.5)";
+                    e.target.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+              </div>
+
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={labelStyle}>Email Address</label>
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="Enter email address"
+                  style={inputStyle}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "rgba(139, 92, 246, 0.5)";
+                    e.target.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+              </div>
+
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={labelStyle}>Mobile Number</label>
+                <input
+                  name="mobile"
+                  placeholder="Enter mobile number"
+                  style={inputStyle}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "rgba(139, 92, 246, 0.5)";
+                    e.target.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Password</label>
+                <input
+                  name="password"
+                  type="password"
+                  placeholder="Enter password"
+                  style={inputStyle}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "rgba(139, 92, 246, 0.5)";
+                    e.target.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Confirm Password</label>
+                <input
+                  name="confirmpassword"
+                  type="password"
+                  placeholder="Confirm password"
+                  style={inputStyle}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "rgba(139, 92, 246, 0.5)";
+                    e.target.style.boxShadow = "0 0 20px rgba(139, 92, 246, 0.15)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+              </div>
+
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={labelStyle}>Profile Image</label>
+                <div
+                  style={{
+                    ...inputStyle,
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    position: "relative",
+                  }}
+                >
                   <input
                     type="file"
-                    label="Upload Image"
                     name="profile"
-                    fullWidth={true}
+                    style={{
+                      position: "absolute",
+                      width: "100%",
+                      height: "100%",
+                      opacity: 0,
+                      cursor: "pointer",
+                    }}
                   />
-                  <ErrorMessage />
-                </Grid>
-              </Grid>
-              <Box mt={3}>
-                <Button type="submit" variant="contained" color="primary">
-                  Add User
-                </Button>
-              </Box>
-            </Box>
-          </Paper>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginRight: "12px", color: "rgba(255, 255, 255, 0.5)" }}>
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span style={{ color: "rgba(255, 255, 255, 0.5)" }}>Choose a file or drag it here</span>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginTop: "32px", textAlign: "center" }}>
+              <button
+                type="submit"
+                style={{
+                  padding: "14px 40px",
+                  background: "linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)",
+                  border: "none",
+                  borderRadius: "12px",
+                  color: "#ffffff",
+                  fontSize: "1rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  boxShadow: "0 4px 20px rgba(139, 92, 246, 0.4)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.boxShadow = "0 8px 30px rgba(139, 92, 246, 0.5)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 4px 20px rgba(139, 92, 246, 0.4)";
+                }}
+              >
+                Add User
+              </button>
+            </div>
+          </div>
         </form>
       </div>
+
+      <style>
+        {`
+          input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+          }
+        `}
+      </style>
     </div>
   );
 };

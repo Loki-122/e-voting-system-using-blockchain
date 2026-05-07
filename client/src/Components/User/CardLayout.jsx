@@ -3,8 +3,26 @@ import { Link } from "react-router-dom";
 
 export default function CardLayout(props) {
   const [isHovered, setIsHovered] = React.useState(false);
-  const image = "https://picsum.photos/400/300?random=" + (props.index + 10);
   const link = "" + props.link;
+
+  // Generate a unique color based on index
+  const colors = [
+    { primary: "#00d4ff", secondary: "#0099cc" },
+    { primary: "#00ff88", secondary: "#00cc6a" },
+    { primary: "#8b5cf6", secondary: "#6d28d9" },
+    { primary: "#ec4899", secondary: "#db2777" },
+    { primary: "#f59e0b", secondary: "#d97706" },
+  ];
+  const colorSet = colors[props.index % colors.length];
+
+  const getInitials = (name) => {
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <div
@@ -19,7 +37,7 @@ export default function CardLayout(props) {
         transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
         transform: isHovered ? "translateY(-8px) scale(1.02)" : "translateY(0) scale(1)",
         boxShadow: isHovered
-          ? "0 25px 50px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0, 212, 255, 0.15)"
+          ? `0 25px 50px rgba(0, 0, 0, 0.4), 0 0 40px ${colorSet.primary}25`
           : "0 4px 20px rgba(0, 0, 0, 0.2)",
       }}
       onMouseEnter={() => setIsHovered(true)}
@@ -30,7 +48,7 @@ export default function CardLayout(props) {
         style={{
           position: "absolute",
           inset: "-2px",
-          background: "linear-gradient(135deg, rgba(0, 212, 255, 0.5) 0%, rgba(0, 255, 136, 0.3) 50%, rgba(255, 0, 110, 0.5) 100%)",
+          background: `linear-gradient(135deg, ${colorSet.primary}80 0%, ${colorSet.secondary}50 100%)`,
           borderRadius: "26px",
           zIndex: -1,
           opacity: isHovered ? 1 : 0,
@@ -38,34 +56,78 @@ export default function CardLayout(props) {
         }}
       />
 
-      {/* Image Container */}
+      {/* Header with Gradient Pattern (No Image) */}
       <div
         style={{
           position: "relative",
-          height: "180px",
+          height: "140px",
           overflow: "hidden",
+          background: `linear-gradient(135deg, ${colorSet.primary}20 0%, ${colorSet.secondary}15 50%, rgba(0, 0, 0, 0.3) 100%)`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <img
-          src={image}
-          alt={props.title}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            transition: "transform 0.5s ease",
-            transform: isHovered ? "scale(1.1)" : "scale(1)",
-          }}
-          crossOrigin="anonymous"
-        />
-        {/* Overlay Gradient */}
+        {/* Animated Grid Pattern */}
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: "linear-gradient(to top, rgba(3, 0, 20, 0.9) 0%, transparent 60%)",
+            backgroundImage: `
+              linear-gradient(${colorSet.primary}10 1px, transparent 1px),
+              linear-gradient(90deg, ${colorSet.primary}10 1px, transparent 1px)
+            `,
+            backgroundSize: "30px 30px",
+            opacity: 0.5,
           }}
         />
+
+        {/* Decorative Circles */}
+        <div
+          style={{
+            position: "absolute",
+            top: "-30px",
+            right: "-30px",
+            width: "100px",
+            height: "100px",
+            background: `radial-gradient(circle, ${colorSet.primary}30 0%, transparent 70%)`,
+            borderRadius: "50%",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            bottom: "-20px",
+            left: "-20px",
+            width: "80px",
+            height: "80px",
+            background: `radial-gradient(circle, ${colorSet.secondary}25 0%, transparent 70%)`,
+            borderRadius: "50%",
+          }}
+        />
+
+        {/* Election Icon/Initial */}
+        <div
+          style={{
+            width: "72px",
+            height: "72px",
+            background: "rgba(255, 255, 255, 0.1)",
+            backdropFilter: "blur(10px)",
+            borderRadius: "20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "1.5rem",
+            fontWeight: 700,
+            color: "#ffffff",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+            boxShadow: `0 8px 32px ${colorSet.primary}40`,
+            transition: "transform 0.3s ease",
+            transform: isHovered ? "scale(1.1)" : "scale(1)",
+          }}
+        >
+          {getInitials(props.title)}
+        </div>
 
         {/* Status Badge */}
         <div
@@ -105,38 +167,10 @@ export default function CardLayout(props) {
             Active
           </span>
         </div>
-
-        {/* Election Icon */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: "-24px",
-            left: "24px",
-            width: "56px",
-            height: "56px",
-            background: "linear-gradient(135deg, #00d4ff 0%, #0099cc 100%)",
-            borderRadius: "16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 8px 24px rgba(0, 212, 255, 0.4)",
-            border: "3px solid #030014",
-          }}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M9 12L11 14L15 10M12 3L4 7V11C4 16.55 7.84 21.74 12 23C16.16 21.74 20 16.55 20 11V7L12 3Z"
-              stroke="#030014"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
       </div>
 
       {/* Content */}
-      <div style={{ padding: "32px 24px 24px" }}>
+      <div style={{ padding: "24px" }}>
         <h3
           style={{
             fontSize: "1.35rem",
@@ -155,7 +189,7 @@ export default function CardLayout(props) {
             style={{
               fontSize: "0.75rem",
               fontWeight: 600,
-              color: "#00d4ff",
+              color: colorSet.primary,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
               display: "block",
@@ -182,14 +216,14 @@ export default function CardLayout(props) {
                   style={{
                     width: "28px",
                     height: "28px",
-                    background: `linear-gradient(135deg, ${index === 0 ? '#00d4ff' : index === 1 ? '#00ff88' : '#ff006e'} 0%, ${index === 0 ? '#0099cc' : index === 1 ? '#00cc6a' : '#cc0058'} 100%)`,
+                    background: `${colors[index % colors.length].primary}25`,
                     borderRadius: "8px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: "0.75rem",
                     fontWeight: 700,
-                    color: "#030014",
+                    color: colors[index % colors.length].primary,
                   }}
                 >
                   {index + 1}
@@ -234,7 +268,7 @@ export default function CardLayout(props) {
             width: "100%",
             padding: "14px 20px",
             background: isHovered
-              ? "linear-gradient(135deg, #00d4ff 0%, #0099cc 100%)"
+              ? `linear-gradient(135deg, ${colorSet.primary} 0%, ${colorSet.secondary} 100%)`
               : "rgba(255, 255, 255, 0.05)",
             border: isHovered ? "none" : "1px solid rgba(255, 255, 255, 0.1)",
             borderRadius: "12px",
