@@ -54,23 +54,9 @@ const AddElection = () => {
     }
   };
 
-  const handleSelectCandidate = (candidate) => {
-    if (!selectedCandidates.find(c => c._id === candidate._id)) {
-      setSelectedCandidates([...selectedCandidates, candidate]);
-    }
-    setIsDropdownOpen(false);
-    setSearchTerm("");
-  };
-
   const handleRemoveCandidate = (candidateId) => {
     setSelectedCandidates(selectedCandidates.filter(c => c._id !== candidateId));
   };
-
-  const filteredCandidates = availableCandidates.filter(
-    c => !selectedCandidates.find(selected => selected._id === c._id) &&
-    (c.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     c.name?.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
 
   const inputStyle = {
     width: "100%",
