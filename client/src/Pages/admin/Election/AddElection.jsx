@@ -316,7 +316,6 @@ const AddElection = () => {
                           zIndex: 100,
                           boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)",
                         }}
-                        onMouseDown={(e) => e.preventDefault()}
                       >
                         {/* Search Input */}
                         <div style={{ padding: "12px", borderBottom: "1px solid rgba(255, 255, 255, 0.06)" }}>
@@ -336,7 +335,6 @@ const AddElection = () => {
                               outline: "none",
                               boxSizing: "border-box",
                             }}
-                            onClick={(e) => e.stopPropagation()}
                           />
                         </div>
 
@@ -346,7 +344,8 @@ const AddElection = () => {
                             filteredCandidates.map((candidate) => (
                               <div
                                 key={candidate._id}
-                                onClick={(e) => {
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
                                   e.stopPropagation();
                                   handleSelectCandidate(candidate);
                                 }}
