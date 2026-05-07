@@ -595,21 +595,6 @@ const AddElection = () => {
         </form>
       </div>
 
-      {/* Click outside to close dropdown */}
-      {isDropdownOpen && (
-        <div
-          onClick={() => setIsDropdownOpen(false)}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 50,
-          }}
-        />
-      )}
-
       <style>
         {`
           input::placeholder {
