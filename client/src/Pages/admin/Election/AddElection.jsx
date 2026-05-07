@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import ContentHeader from "../../../Components/ContentHeader";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -10,32 +10,12 @@ const AddElection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const dropdownRef = useRef(null);
 
   useEffect(() => {
     setIsVisible(true);
     fetchCandidates();
   }, []);
-
-  // Handle click outside to close dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-        setSearchTerm("");
-      }
-    };
-
-    if (isDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isDropdownOpen]);
 
   const fetchCandidates = async () => {
     try {
@@ -200,8 +180,8 @@ const AddElection = () => {
                 />
               </div>
 
-              {/* Candidates Dropdown */}
-              <div style={{ marginBottom: "24px", position: "relative" }}>
+              {/* Candidates Selection */}
+              <div style={{ marginBottom: "24px" }}>
                 <label style={labelStyle}>Select Candidates</label>
                 
                 {isLoading ? (
@@ -267,171 +247,165 @@ const AddElection = () => {
                     </a>
                   </div>
                 ) : (
-                  <div ref={dropdownRef} style={{ position: "relative" }}>
-                    {/* Dropdown Trigger */}
-                    <div
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      style={{
-                        ...inputStyle,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        borderColor: isDropdownOpen ? "rgba(139, 92, 246, 0.5)" : "rgba(255, 255, 255, 0.1)",
-                        boxShadow: isDropdownOpen ? "0 0 20px rgba(139, 92, 246, 0.15)" : "none",
-                      }}
-                    >
-                      <span style={{ color: "rgba(255, 255, 255, 0.4)" }}>
-                        {filteredCandidates.length > 0 
-                          ? `Select from ${filteredCandidates.length} available candidate${filteredCandidates.length !== 1 ? 's' : ''}`
-                          : 'All candidates selected'
-                        }
-                      </span>
-                      <svg 
-                        width="18" 
-                        height="18" 
-                        viewBox="0 0 24 24" 
-                        fill="none"
+                  <div
+                    style={{
+                      background: "rgba(255, 255, 255, 0.03)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {/* Search Input */}
+                    <div style={{ padding: "12px", borderBottom: "1px solid rgba(255, 255, 255, 0.06)" }}>
+                      <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search candidates..."
                         style={{
-                          transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
-                          transition: "transform 0.2s ease",
+                          width: "100%",
+                          padding: "10px 12px",
+                          background: "rgba(255, 255, 255, 0.05)",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
+                          borderRadius: "8px",
+                          color: "#ffffff",
+                          fontSize: "0.9rem",
+                          outline: "none",
+                          boxSizing: "border-box",
                         }}
-                      >
-                        <path d="M6 9l6 6 6-6" stroke="rgba(255, 255, 255, 0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
+                      />
                     </div>
 
-                    {/* Dropdown Menu */}
-                    {isDropdownOpen && (
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: "calc(100% + 8px)",
-                          left: 0,
-                          right: 0,
-                          background: "rgba(30, 30, 40, 0.98)",
-                          border: "1px solid rgba(255, 255, 255, 0.1)",
-                          borderRadius: "12px",
-                          overflow: "hidden",
-                          zIndex: 100,
-                          boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)",
-                        }}
-                      >
-                        {/* Search Input */}
-                        <div style={{ padding: "12px", borderBottom: "1px solid rgba(255, 255, 255, 0.06)" }}>
-                          <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search candidates..."
-                            style={{
-                              width: "100%",
-                              padding: "10px 12px",
-                              background: "rgba(255, 255, 255, 0.05)",
-                              border: "1px solid rgba(255, 255, 255, 0.1)",
-                              borderRadius: "8px",
-                              color: "#ffffff",
-                              fontSize: "0.9rem",
-                              outline: "none",
-                              boxSizing: "border-box",
-                            }}
-                          />
-                        </div>
-
-                        {/* Candidates List */}
-                        <div style={{ maxHeight: "250px", overflowY: "auto" }}>
-                          {filteredCandidates.length > 0 ? (
-                            filteredCandidates.map((candidate) => (
-                              <div
-                                key={candidate._id}
-                                onMouseDown={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  handleSelectCandidate(candidate);
-                                }}
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    handleSelectCandidate(candidate);
+                    {/* Candidates List with Checkboxes */}
+                    <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                      {availableCandidates
+                        .filter(c => 
+                          c.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          c.name?.toLowerCase().includes(searchTerm.toLowerCase())
+                        )
+                        .map((candidate) => {
+                          const isSelected = selectedCandidates.some(c => c._id === candidate._id);
+                          return (
+                            <label
+                              key={candidate._id}
+                              style={{
+                                padding: "12px 16px",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "12px",
+                                cursor: "pointer",
+                                transition: "all 0.2s ease",
+                                borderBottom: "1px solid rgba(255, 255, 255, 0.04)",
+                                background: isSelected ? "rgba(139, 92, 246, 0.15)" : "transparent",
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!isSelected) {
+                                  e.currentTarget.style.background = "rgba(139, 92, 246, 0.08)";
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = isSelected ? "rgba(139, 92, 246, 0.15)" : "transparent";
+                              }}
+                            >
+                              {/* Checkbox */}
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => {
+                                  if (isSelected) {
+                                    handleRemoveCandidate(candidate._id);
+                                  } else {
+                                    setSelectedCandidates([...selectedCandidates, candidate]);
                                   }
                                 }}
                                 style={{
-                                  padding: "12px 16px",
+                                  width: "18px",
+                                  height: "18px",
+                                  accentColor: "#8b5cf6",
+                                  cursor: "pointer",
+                                }}
+                              />
+
+                              {/* Avatar */}
+                              <div
+                                style={{
+                                  width: "40px",
+                                  height: "40px",
+                                  borderRadius: "10px",
+                                  background: "linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(236, 72, 153, 0.3) 100%)",
                                   display: "flex",
                                   alignItems: "center",
-                                  gap: "12px",
-                                  cursor: "pointer",
-                                  transition: "all 0.2s ease",
-                                  borderBottom: "1px solid rgba(255, 255, 255, 0.04)",
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.background = "rgba(139, 92, 246, 0.15)";
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.background = "transparent";
+                                  justifyContent: "center",
+                                  overflow: "hidden",
+                                  flexShrink: 0,
                                 }}
                               >
-                                {/* Avatar */}
-                                <div
-                                  style={{
-                                    width: "40px",
-                                    height: "40px",
-                                    borderRadius: "10px",
-                                    background: "linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(236, 72, 153, 0.3) 100%)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    overflow: "hidden",
-                                    flexShrink: 0,
-                                  }}
-                                >
-                                  {candidate.profile ? (
-                                    <img
-                                      src={`http://localhost:1322/${candidate.profile}`}
-                                      alt={candidate.username}
-                                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                    />
-                                  ) : (
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                      <circle cx="12" cy="7" r="4" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                  )}
-                                </div>
-                                
-                                {/* Info */}
-                                <div style={{ flex: 1 }}>
-                                  <div style={{ color: "#ffffff", fontSize: "0.95rem", fontWeight: 500 }}>
-                                    {candidate.name || candidate.username}
-                                  </div>
-                                  <div style={{ color: "rgba(255, 255, 255, 0.4)", fontSize: "0.8rem" }}>
-                                    @{candidate.username}
-                                  </div>
-                                </div>
-
-                                {/* Add Icon */}
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                  <path d="M12 5v14M5 12h14" stroke="rgba(139, 92, 246, 0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
+                                {candidate.profile ? (
+                                  <img
+                                    src={`http://localhost:1322/${candidate.profile}`}
+                                    alt={candidate.username}
+                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                  />
+                                ) : (
+                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <circle cx="12" cy="7" r="4" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                )}
                               </div>
-                            ))
-                          ) : (
-                            <div
-                              style={{
-                                padding: "24px",
-                                textAlign: "center",
-                                color: "rgba(255, 255, 255, 0.4)",
-                                fontSize: "0.9rem",
-                              }}
-                            >
-                              {searchTerm ? "No candidates match your search" : "All candidates have been selected"}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                              
+                              {/* Info */}
+                              <div style={{ flex: 1 }}>
+                                <div style={{ color: "#ffffff", fontSize: "0.95rem", fontWeight: 500 }}>
+                                  {candidate.name || candidate.username}
+                                </div>
+                                <div style={{ color: "rgba(255, 255, 255, 0.4)", fontSize: "0.8rem" }}>
+                                  @{candidate.username}
+                                </div>
+                              </div>
+
+                              {/* Selected indicator */}
+                              {isSelected && (
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                  <path d="M20 6L9 17l-5-5" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              )}
+                            </label>
+                          );
+                        })}
+                    </div>
+
+                    {/* Selected count */}
+                    <div
+                      style={{
+                        padding: "12px 16px",
+                        borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+                        background: "rgba(255, 255, 255, 0.02)",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: "0.85rem" }}>
+                        {selectedCandidates.length} candidate{selectedCandidates.length !== 1 ? 's' : ''} selected
+                      </span>
+                      {selectedCandidates.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedCandidates([])}
+                          style={{
+                            background: "transparent",
+                            border: "none",
+                            color: "rgba(239, 68, 68, 0.8)",
+                            fontSize: "0.8rem",
+                            cursor: "pointer",
+                            padding: "4px 8px",
+                          }}
+                        >
+                          Clear all
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -442,7 +416,7 @@ const AddElection = () => {
                     marginTop: "8px",
                   }}
                 >
-                  Click to open dropdown and select candidates for this election
+                  Check the candidates you want to include in this election
                 </p>
               </div>
 
