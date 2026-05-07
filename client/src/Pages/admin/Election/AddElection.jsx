@@ -20,7 +20,6 @@ const AddElection = () => {
   const fetchCandidates = async () => {
     try {
       const res = await axios.get("http://localhost:1322/api/auth/candidates");
-      // API returns array directly, not wrapped in candidates property
       if (res.data && Array.isArray(res.data)) {
         setAvailableCandidates(res.data);
       } else if (res.data && res.data.candidates) {
@@ -57,6 +56,20 @@ const AddElection = () => {
   const handleRemoveCandidate = (candidateId) => {
     setSelectedCandidates(selectedCandidates.filter(c => c._id !== candidateId));
   };
+
+  const handleToggleCandidate = (candidate) => {
+    const isSelected = selectedCandidates.some(c => c._id === candidate._id);
+    if (isSelected) {
+      handleRemoveCandidate(candidate._id);
+    } else {
+      setSelectedCandidates([...selectedCandidates, candidate]);
+    }
+  };
+
+  const filteredCandidates = availableCandidates.filter(c =>
+    c.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const inputStyle = {
     width: "100%",
@@ -131,22 +144,10 @@ const AddElection = () => {
                   <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" stroke="#ec4899" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <h2
-                style={{
-                  fontSize: "1.5rem",
-                  fontWeight: 600,
-                  color: "#ffffff",
-                  marginBottom: "8px",
-                }}
-              >
+              <h2 style={{ fontSize: "1.5rem", fontWeight: 600, color: "#ffffff", marginBottom: "8px" }}>
                 Create New Election
               </h2>
-              <p
-                style={{
-                  fontSize: "0.9rem",
-                  color: "rgba(255, 255, 255, 0.5)",
-                }}
-              >
+              <p style={{ fontSize: "0.9rem", color: "rgba(255, 255, 255, 0.5)" }}>
                 Set up a new election with candidates
               </p>
             </div>
@@ -223,7 +224,6 @@ const AddElection = () => {
                         fontSize: "0.85rem",
                         fontWeight: 500,
                         textDecoration: "none",
-                        transition: "all 0.2s ease",
                       }}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -262,32 +262,27 @@ const AddElection = () => {
                       />
                     </div>
 
-                    {/* Candidates List with Checkboxes */}
+                    {/* Candidates List */}
                     <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-                      {availableCandidates
-                        .filter(c => 
-                          c.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          c.name?.toLowerCase().includes(searchTerm.toLowerCase())
-                        )
-                        .map((candidate) => {
+                      {filteredCandidates.length > 0 ? (
+                        filteredCandidates.map((candidate) => {
                           const isSelected = selectedCandidates.some(c => c._id === candidate._id);
                           return (
-                            <label
+                            <div
                               key={candidate._id}
+                              onClick={() => handleToggleCandidate(candidate)}
                               style={{
                                 padding: "12px 16px",
                                 display: "flex",
                                 alignItems: "center",
                                 gap: "12px",
                                 cursor: "pointer",
-                                transition: "all 0.2s ease",
                                 borderBottom: "1px solid rgba(255, 255, 255, 0.04)",
                                 background: isSelected ? "rgba(139, 92, 246, 0.15)" : "transparent",
+                                transition: "background 0.2s ease",
                               }}
                               onMouseEnter={(e) => {
-                                if (!isSelected) {
-                                  e.currentTarget.style.background = "rgba(139, 92, 246, 0.08)";
-                                }
+                                if (!isSelected) e.currentTarget.style.background = "rgba(139, 92, 246, 0.08)";
                               }}
                               onMouseLeave={(e) => {
                                 e.currentTarget.style.background = isSelected ? "rgba(139, 92, 246, 0.15)" : "transparent";
@@ -297,13 +292,7 @@ const AddElection = () => {
                               <input
                                 type="checkbox"
                                 checked={isSelected}
-                                onChange={() => {
-                                  if (isSelected) {
-                                    handleRemoveCandidate(candidate._id);
-                                  } else {
-                                    setSelectedCandidates([...selectedCandidates, candidate]);
-                                  }
-                                }}
+                                onChange={() => {}}
                                 style={{
                                   width: "18px",
                                   height: "18px",
@@ -356,9 +345,14 @@ const AddElection = () => {
                                   <path d="M20 6L9 17l-5-5" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                               )}
-                            </label>
+                            </div>
                           );
-                        })}
+                        })
+                      ) : (
+                        <div style={{ padding: "24px", textAlign: "center", color: "rgba(255, 255, 255, 0.4)" }}>
+                          No candidates match your search
+                        </div>
+                      )}
                     </div>
 
                     {/* Selected count */}
@@ -373,7 +367,7 @@ const AddElection = () => {
                       }}
                     >
                       <span style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: "0.85rem" }}>
-                        {selectedCandidates.length} candidate{selectedCandidates.length !== 1 ? 's' : ''} selected
+                        {selectedCandidates.length} candidate{selectedCandidates.length !== 1 ? "s" : ""} selected
                       </span>
                       {selectedCandidates.length > 0 && (
                         <button
@@ -395,18 +389,12 @@ const AddElection = () => {
                   </div>
                 )}
 
-                <p
-                  style={{
-                    fontSize: "0.75rem",
-                    color: "rgba(255, 255, 255, 0.4)",
-                    marginTop: "8px",
-                  }}
-                >
-                  Check the candidates you want to include in this election
+                <p style={{ fontSize: "0.75rem", color: "rgba(255, 255, 255, 0.4)", marginTop: "8px" }}>
+                  Click on candidates to select or deselect them
                 </p>
               </div>
 
-              {/* Selected Candidates List */}
+              {/* Selected Candidates Tags */}
               {selectedCandidates.length > 0 && (
                 <div
                   style={{
@@ -429,13 +417,7 @@ const AddElection = () => {
                   >
                     Selected Candidates ({selectedCandidates.length})
                   </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: "10px",
-                    }}
-                  >
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
                     {selectedCandidates.map((candidate, index) => (
                       <div
                         key={candidate._id}
@@ -449,7 +431,6 @@ const AddElection = () => {
                           borderRadius: "100px",
                         }}
                       >
-                        {/* Small Avatar */}
                         <div
                           style={{
                             width: "24px",
@@ -469,23 +450,12 @@ const AddElection = () => {
                               style={{ width: "100%", height: "100%", objectFit: "cover" }}
                             />
                           ) : (
-                            <span
-                              style={{
-                                fontSize: "0.7rem",
-                                fontWeight: 600,
-                                color: "#8b5cf6",
-                              }}
-                            >
+                            <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "#8b5cf6" }}>
                               {index + 1}
                             </span>
                           )}
                         </div>
-                        <span
-                          style={{
-                            fontSize: "0.85rem",
-                            color: "#ffffff",
-                          }}
-                        >
+                        <span style={{ fontSize: "0.85rem", color: "#ffffff" }}>
                           {candidate.name || candidate.username}
                         </span>
                         <button
@@ -502,13 +472,6 @@ const AddElection = () => {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            transition: "all 0.2s ease",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = "rgba(239, 68, 68, 0.4)";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "rgba(239, 68, 68, 0.2)";
                           }}
                         >
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -537,22 +500,11 @@ const AddElection = () => {
                     fontSize: "1rem",
                     fontWeight: 600,
                     cursor: isSubmitting || selectedCandidates.length === 0 ? "not-allowed" : "pointer",
-                    transition: "all 0.3s ease",
                     boxShadow: isSubmitting || selectedCandidates.length === 0 ? "none" : "0 4px 20px rgba(139, 92, 246, 0.4)",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "10px",
                     opacity: selectedCandidates.length === 0 ? 0.6 : 1,
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isSubmitting && selectedCandidates.length > 0) {
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                      e.currentTarget.style.boxShadow = "0 8px 30px rgba(139, 92, 246, 0.5)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = isSubmitting || selectedCandidates.length === 0 ? "none" : "0 4px 20px rgba(139, 92, 246, 0.4)";
                   }}
                 >
                   {isSubmitting ? (
@@ -579,13 +531,7 @@ const AddElection = () => {
                   )}
                 </button>
                 {selectedCandidates.length === 0 && !isLoading && availableCandidates.length > 0 && (
-                  <p
-                    style={{
-                      fontSize: "0.8rem",
-                      color: "rgba(255, 193, 7, 0.8)",
-                      marginTop: "12px",
-                    }}
-                  >
+                  <p style={{ fontSize: "0.8rem", color: "rgba(255, 193, 7, 0.8)", marginTop: "12px" }}>
                     Select at least one candidate to create an election
                   </p>
                 )}
